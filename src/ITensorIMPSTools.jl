@@ -1,5 +1,6 @@
 module ITensorIMPSTools
 
-greet() = print("Hello World!")
+include("corelation.jl")
+export correlation_fast, correlation_slow
 
 end # module ITensorIMPSTools
