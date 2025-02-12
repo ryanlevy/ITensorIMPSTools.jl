@@ -3,12 +3,15 @@ Tools for ITensorInfiniteMPS
 
 ## Structure Factor Code
 Structure Factor for VUMPS
-Computes 
+
+
+The command `static_sq(q,ψ,A,α,B,β)`Computes 
+
 $$
-S(q) = \sum_{m,n} e^{iq(m-n)} \langle \psi|O_nO_m|\psi\rangle
+S^{\alpha\beta}(q) \sim \sum_{m,n} e^{iq(m-n)} \langle \psi|A^\alpha(n)B^\beta(m)|\psi\rangle
 $$
 
-with the local part removed, i.e. $O \to O - \langle O \rangle$
+where $\alpha, \beta$ are unit cell positions and the local part is removed, i.e. $A \to A - \langle A \rangle$ (as well as $B$)
 
 ### Usage
 
@@ -16,7 +19,7 @@ Obtain a wave function from somewhere (InfiniteCanonicalMPS)
 
 Default usage:
 ```julia
-julia> include("structure.jl");
+julia> using ITensorIMPSTools: static_sq
        static_sq(π , ψ, "Ntot", 1, "Ntot", 1)
 0.2507357963758881 - 1.1720606343985638e-27im
 ```
