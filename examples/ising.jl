@@ -57,22 +57,19 @@ subspace_expansion_kwargs = (cutoff=cutoff, maxdim=maxdim)
 # Check translational invariance
 @show norm(contract(ψ.AL[1:N]..., ψ.C[N]) - contract(ψ.C[0], ψ.AR[1:N]...))
 
-
 stop = 100
-d = [expect(ψ,"Sz",i) for i in 1:stop]
+d = [expect(ψ, "Sz", i) for i in 1:stop]
 using ITensorIMPSTools
 
-SzSz_approx = correlation_fast(ψ,"Sz","Sz",stop) - d*d'
-SzSz_exact = correlation_slow(ψ,"Sz","Sz",stop) - d*d'
+SzSz_approx = correlation_fast(ψ, "Sz", "Sz", stop) - d * d'
+SzSz_exact = correlation_slow(ψ, "Sz", "Sz", stop) - d * d'
 @show SzSz_approx ≈ SzSz_exact
 
 @show sum(SzSz_approx .< 0)
 @show sum(SzSz_exact .< 0)
 
 vumps_kwargs = (
-  maxiter=400,
-  solver_tol=solver_tol,
-  multisite_update_alg=multisite_update_alg,
+  maxiter=400, solver_tol=solver_tol, multisite_update_alg=multisite_update_alg
 )
 ψ2 = tdvp_subspace_expansion(
   H, ψ; time_step, outer_iters=1, subspace_expansion_kwargs, vumps_kwargs
@@ -82,10 +79,10 @@ vumps_kwargs = (
 @show norm(contract(ψ2.AL[1:N]..., ψ2.C[N]) - contract(ψ2.C[0], ψ2.AR[1:N]...))
 
 stop = 100
-d = [expect(ψ2,"Sz",i) for i in 1:stop]
+d = [expect(ψ2, "Sz", i) for i in 1:stop]
 
-SzSz_approx = correlation_fast(ψ2,"Sz","Sz",stop) - d*d'
-SzSz_exact = correlation_slow(ψ2,"Sz","Sz",stop) - d*d'
+SzSz_approx = correlation_fast(ψ2, "Sz", "Sz", stop) - d * d'
+SzSz_exact = correlation_slow(ψ2, "Sz", "Sz", stop) - d * d'
 @show SzSz_approx ≈ SzSz_exact
 
 @show sum(SzSz_approx .< 0)

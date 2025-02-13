@@ -231,7 +231,7 @@ function correlation_matrix_env(psi, _Op1, _Op2, lEnv, rEnv, stop; ishermitian=n
       if !using_auto_fermion() && fermionic1
         Op2 = "$Op2 * F"
       end
-      oᵢ = adapt(datatype(psi[i]), op(Op2, s, i))
+      oᵢ = adapt(datatype(psi[i]), op(Op2, s[i]))
       Li21 = (Li * oᵢ) * dag(psi[i])'
       pL21 = i
       if !using_auto_fermion() && fermionic1
@@ -256,10 +256,14 @@ function correlation_matrix_env(psi, _Op1, _Op2, lEnv, rEnv, stop; ishermitian=n
         lind = commonind(psi[j], Li21)
         Li21 *= psi[j]
 
-        oⱼ = adapt(datatype(psi[j]), op(Op1, s, j))
+        oⱼ = adapt(datatype(psi[j]), op(Op1, s[j]))
         sⱼ = siteind(psi, j)
-        val = (prime(dag(psi[j]), (sⱼ, lind)) * (oⱼ * Li21))[]
-        C[nj, ni] = val / norm2_psi
+        #val = (prime(dag(psi[j]), (sⱼ, lind)) * (oⱼ * Li21))[]
+        #C[nj, ni] = val / norm2_psi
+        tempL = (L * (oⱼ * psi[j])) * dag(psi[j])'
+        C[nj, ni] = finishRightMult(
+          psi, tlator, N_, tempL, j, tlator(rEnv, sToC(j) - 1), norms[sToC(j)]
+        )
 
         pL21 += 1
         if !using_auto_fermion() && fermionic1
@@ -298,10 +302,12 @@ function correlation_matrix_env(psi, _Op1, _Op2, lEnv, rEnv, stop; ishermitian=n
 
   return C
 end
-function correlation_slow(ψ::InfiniteCanonicalMPS, op1::String, op2::String, stop::Int)
+function correlation_slow(
+  ψ::InfiniteCanonicalMPS, op1::String, op2::String, stop::Int; kwargs...
+)
   T = TransferMatrix(ψ.AL)
   vL, vR = getLR(T)
-  return correlation_matrix_env(ψ, op1, op2, vL, vR, stop;)
+  return correlation_matrix_env(ψ, op1, op2, vL, vR, stop; kwargs...)
 end
 
 function correlation_fast(ψ::InfiniteCanonicalMPS, op1::String, op2::String, stop::Int)
