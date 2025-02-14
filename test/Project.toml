@@ -1,5 +1,6 @@
 [deps]
 Glob = "c27321d9-0574-5035-807b-f59d2c89b15c"
+HDF5 = "f67ccb44-e63f-5c2f-98bd-6dc0ccc4ba2f"
 ITensorIMPSTools = "c9f4571a-192a-46dd-9b28-cdfa43486bb5"
 ITensorInfiniteMPS = "1dc1fb26-a137-4954-ae60-1bd4106e95ad"
 ITensorMPS = "0d1a4710-d33b-49a5-8f18-73bdf49b47e2"

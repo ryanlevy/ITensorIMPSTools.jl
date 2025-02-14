@@ -1,5 +1,6 @@
 using Test
 using ITensorInfiniteMPS
+using ITensors
 using ITensorIMPSTools
 
 using Random: seed!
@@ -70,6 +71,7 @@ seed!(42)
     read(fi, "psi", InfiniteCanonicalMPS)
   end
 
+  N = length(ψ)
   # should be 1e-14, but tests are still very conservative 
   @show norm(contract(ψ.AL[1:N]..., ψ.C[N]) - contract(ψ.C[0], ψ.AR[1:N]...))
 
