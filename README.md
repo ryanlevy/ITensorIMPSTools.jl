@@ -49,12 +49,22 @@ total = -0.0020754459729724166 + 3.555571120014508e-19im
 0.2507357963758881 - 1.1720606343985638e-27im
 ```
 
-### TODO
-- Switch to output level style reporting
-- Multi-site operators
-
 ## Exact Correlators
 While the structure factor code is nearly exact, sometimes its useful to visualize a real space computation of $\langle O_i O_j \rangle$. The examples use a `finite_mps` to measure this,  however, the inexact gauge of the IMPS can mean that at large distances the `finite_mps` can become non-translationally invariant. This code uses a slightly slower method to exactly compute the correlator with no dependence on gauge condition. See [Future Blog Post] for a demonstration. 
+
+See [the ising example](https://github.com/ryanlevy/ITensorIMPSTools.jl/blob/main/examples/ising.jl) for a comparison of the fast and exact way of calculating this correlation: 
+```julia
+# makes a finite_mps and then puts that into correlation_matrix
+O1O2_approx = correlation_fast(ψ2, Op1, Op2, stop) 
+
+# takes advantage of translation symmetry
+# and assumes there's no gauge 
+O1O2_exact = correlation_slow(ψ2, Op1, Op2, stop) 
+```
+
+## Transfer Matrix Eigenvalues
+
+There is [an example](https://github.com/ITensor/ITensorInfiniteMPS.jl/blob/main/examples/vumps/transfer_matrix_spectrum.jl) on how to obtain the transfer matrix spectrum, but this doesn't show how to obtain the charges (or QN blocks) that each eigenvalue comes from. The `getSpectrumQN` function will find the first `neigs` eigenvalues in each block, for all possible blocks. 
 
 Default usage:
 ```julia
@@ -68,3 +78,10 @@ julia> eigList = getSpectrumQN(p; neigs=4)
 ```
 
 There is also a tool for writing this to a text file `write_spec_to_file(eigList, fname)`. 
+
+### TODO
+- Structure Factor
+    - Switch to output level style reporting
+    - Multi-site operators
+- Transfer Matrix
+    - Target specific QNs by hand  
