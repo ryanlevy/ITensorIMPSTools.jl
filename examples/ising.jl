@@ -79,10 +79,13 @@ vumps_kwargs = (
 @show norm(contract(ψ2.AL[1:N]..., ψ2.C[N]) - contract(ψ2.C[0], ψ2.AR[1:N]...))
 
 stop = 100
-d = [expect(ψ2, "Sz", i) for i in 1:stop]
+Op1 = "Sz"
+Op2 = "Sz"
+d1 = [expect(ψ2, Op1, i) for i in 1:stop]
+d2 = [expect(ψ2, Op2, i) for i in 1:stop]
 
-SzSz_approx = correlation_fast(ψ2, "Sz", "Sz", stop) - d * d'
-SzSz_exact = correlation_slow(ψ2, "Sz", "Sz", stop) - d * d'
+SzSz_approx = correlation_fast(ψ2, Op1, Op2, stop) - d1 * d2'
+SzSz_exact = correlation_slow(ψ2, Op1, Op2, stop) - d1 * d2'
 @show SzSz_approx ≈ SzSz_exact
 
 @show sum(SzSz_approx .< 0)

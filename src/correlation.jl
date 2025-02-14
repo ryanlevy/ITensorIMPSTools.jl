@@ -260,7 +260,8 @@ function correlation_matrix_env(psi, _Op1, _Op2, lEnv, rEnv, stop; ishermitian=n
         sⱼ = siteind(psi, j)
         #val = (prime(dag(psi[j]), (sⱼ, lind)) * (oⱼ * Li21))[]
         #C[nj, ni] = val / norm2_psi
-        tempL = (L * (oⱼ * psi[j])) * dag(psi[j])'
+        #tempL = (L * (oⱼ * psi[j])) * dag(psi[j])'
+        tempL = dag(psi[j])' * (oⱼ * Li21)
         C[nj, ni] = finishRightMult(
           psi, tlator, N_, tempL, j, tlator(rEnv, sToC(j) - 1), norms[sToC(j)]
         )
@@ -278,27 +279,40 @@ function correlation_matrix_env(psi, _Op1, _Op2, lEnv, rEnv, stop; ishermitian=n
       Op2 = _Op2 #"Restore Op2 with no Fs"
     end #if is_cm_hermitian
 
+    # use translational invariance
+    (i == N_) && break
+
     pL += 1
     sᵢ = siteind(psi, i)
     L = Li * prime(dag(psi[i]), !sᵢ)
   end #for i
 
-  # Get last diagonal element of C
-  i = end_site
-  while pL < i - 1
-    pL += 1
-    sᵢ = siteind(psi, pL)
-    L = L * psi[pL] * prime(dag(psi[pL]), !sᵢ)
-  end
-  lind = commonind(psi[i], psi[i - 1])
-  oᵢ = adapt(datatype(psi[i]), op(onsiteOp, s[i]))
-  sᵢ = siteind(psi, i)
-  #val = (L * (oᵢ * psi[i]) * prime(dag(psi[i]), (sᵢ, lind)))[]
-  tempL = (L * (oᵢ * psi[i])) * dag(psi[i])'
-  C[Nb, Nb] = finishRightMult(
-    psi, tlator, N_, tempL, i, tlator(rEnv, sToC(i) - 1), norms[sToC(i)]
-  )
+  ## Get last diagonal element of C
+  #i = end_site
+  #while pL < i - 1
+  #  pL += 1
+  #  sᵢ = siteind(psi, pL)
+  #  L = L * psi[pL] * prime(dag(psi[pL]), !sᵢ)
+  #end
+  #lind = commonind(psi[i], psi[i - 1])
+  #oᵢ = adapt(datatype(psi[i]), op(onsiteOp, s[i]))
+  #sᵢ = siteind(psi, i)
+  ##val = (L * (oᵢ * psi[i]) * prime(dag(psi[i]), (sᵢ, lind)))[]
+  #tempL = (L * (oᵢ * psi[i])) * dag(psi[i])'
+  #C[Nb, Nb] = finishRightMult(
+  #  psi, tlator, N_, tempL, i, tlator(rEnv, sToC(i) - 1), norms[sToC(i)]
+  #)
   #C[Nb, Nb] = val / norm2_psi
+
+  # everything should get mapped back into the appropriate unit cell and its distance
+  # careful to handle non-commuting ops
+  for i in (N_ + 1):stop
+    for j in (N_ + 1):stop
+      a = (i > j) ? (i - 1) % N_ + 1 : (j - 1) % N_ + 1
+      b = a + abs(i - j)
+      C[i, j] = (i > j) ? C[a, b] : C[b, a]
+    end
+  end
 
   return C
 end
