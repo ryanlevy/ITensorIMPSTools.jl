@@ -34,6 +34,9 @@ jobs:
           version: ${{ matrix.julia-version }}
           arch: ${{ matrix.julia-arch }}
       - uses: julia-actions/cache@v2
+      - name: Include ITensor Registry
+        run: |
+          julia  -e 'using Pkg; Pkg.registry.add(url="https://github.com/ITensor/ITensorRegistry")'
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
         # with:
