@@ -10,7 +10,7 @@ ITensors = "9136182c-28ba-11e9-034c-db9fb085ebd5"
 KrylovKit = "0b1a1467-8014-51b9-945f-bf0ae24f4b77"
 
 [compat]
-ITensorInfiniteMPS = "0.1.0"
+ITensorInfiniteMPS = "0.1, 0.2"
 ITensorMPS = "0.3.7"
 ITensors = "0.7, 0.8"
 KrylovKit = "0.8, 0.9"
