@@ -61,12 +61,14 @@ end
 
 function getAllNorms(psi, maxUnitCell, vL, vR)
   norms = Vector{Number}(undef, maxUnitCell)
+  tlator = translator(psi)
   L = vL
-  T = TransferMatrix(psi.AL)
+  T = transpose(TransferMatrix(psi.AL))
   for i in 1:maxUnitCell
     L = T(L)
+    L = tlator(L, 1) # XXX should be removed, transfer matrix seems to be weird
     norms[i] = scalar(L * vR)
-    L = translator(psi)(L, -1)
+    L = tlator(L, -1)
   end
   return norms
 end

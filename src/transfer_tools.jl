@@ -12,7 +12,7 @@ function getSpectrumQN(ψ; neigs=4, tol=1e-10)
     vⁱᴿ = random_itensor(dag(input_inds(T)), Index(q[1] => 1))
     neigs_ = min(q[2], neigs)
     λR, vvR, right_info = eigsolve(T, vⁱᴿ, neigs_, :LM; tol=tol)
-    push!(eigList, (q, λR[1:min(neigs_,length(λR))]))
+    push!(eigList, (q, λR[1:min(neigs_, length(λR))]))
   end
   return eigList
 end
