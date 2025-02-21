@@ -48,7 +48,7 @@ function getLM(T; tol=1e-14, neigs=1)
   return vecs[1]
 end
 
-function finishRightMult(psi, tlator, N_, L_, currSpot, vR, normN)
+function finishRightMult(psi, N_, L_, currSpot, vR, normN)
   maxUnitCell = ceil(Int, currSpot / N_)
   L = L_
   for i in (currSpot + 1):(maxUnitCell * N_)
@@ -61,14 +61,12 @@ end
 
 function getAllNorms(psi, maxUnitCell, vL, vR)
   norms = Vector{Number}(undef, maxUnitCell)
-  tlator = translator(psi)
   L = vL
   T = transpose(TransferMatrix(psi.AL))
+  vR = translator(psi)(vR, -1)
   for i in 1:maxUnitCell
     L = T(L)
-    L = tlator(L, 1) # XXX should be removed, transfer matrix seems to be weird
     norms[i] = scalar(L * vR)
-    L = tlator(L, -1)
   end
   return norms
 end
@@ -167,7 +165,7 @@ function correlation_matrix_env(psi, _Op1, _Op2, lEnv, rEnv, stop; ishermitian=n
     #C[ni, ni] = ((Li * oᵢ) * prime(dag(psi[i]), !rind))[] / norm2_psi
     tempL = (Li * oᵢ) * dag(psi[i])'
     C[ni, ni] = finishRightMult(
-      psi, tlator, N_, tempL, i, tlator(rEnv, sToC(i) - 1), norms[sToC(i)]
+      psi, N_, tempL, i, tlator(rEnv, sToC(i) - 1), norms[sToC(i)]
     )
 
     # Get j > i correlations
@@ -208,7 +206,7 @@ function correlation_matrix_env(psi, _Op1, _Op2, lEnv, rEnv, stop; ishermitian=n
       tempL = (Li12 * oⱼ) * dag(psi[j])'
 
       C[ni, nj] = finishRightMult(
-        psi, tlator, N_, tempL, j, tlator(rEnv, sToC(j) - 1), norms[sToC(j)]
+        psi, N_, tempL, j, tlator(rEnv, sToC(j) - 1), norms[sToC(j)]
       )
       #C[ni, nj] = scalar(val) / norm2_psi
       if is_cm_hermitian
@@ -265,7 +263,7 @@ function correlation_matrix_env(psi, _Op1, _Op2, lEnv, rEnv, stop; ishermitian=n
         #tempL = (L * (oⱼ * psi[j])) * dag(psi[j])'
         tempL = dag(psi[j])' * (oⱼ * Li21)
         C[nj, ni] = finishRightMult(
-          psi, tlator, N_, tempL, j, tlator(rEnv, sToC(j) - 1), norms[sToC(j)]
+          psi, N_, tempL, j, tlator(rEnv, sToC(j) - 1), norms[sToC(j)]
         )
 
         pL21 += 1
@@ -318,11 +316,12 @@ function correlation_matrix_env(psi, _Op1, _Op2, lEnv, rEnv, stop; ishermitian=n
 
   return C
 end
+
 function correlation_slow(
-  ψ::InfiniteCanonicalMPS, op1::String, op2::String, stop::Int; kwargs...
+  ψ::InfiniteCanonicalMPS, op1::String, op2::String, stop::Int; tol=1e-14, kwargs...
 )
   T = TransferMatrix(ψ.AL)
-  vL, vR = getLR(T)
+  vL, vR = getLR(T; tol)
   return correlation_matrix_env(ψ, op1, op2, vL, vR, stop; kwargs...)
 end
 
@@ -331,4 +330,8 @@ function correlation_fast(ψ::InfiniteCanonicalMPS, op1::String, op2::String, st
     finite_mps(ψ, 1:(stop + 1)), op1, op2; sites=2:(stop + 1)
   )
   return corr_infinite
+end
+
+function finite_onsite(ψ::InfiniteCanonicalMPS, op::String, stop::Int)
+  return expect(finite_mps(ψ, 1:(stop + 1)), op; sites=2:(stop + 1))
 end

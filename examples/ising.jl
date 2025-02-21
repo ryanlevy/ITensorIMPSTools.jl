@@ -58,11 +58,14 @@ subspace_expansion_kwargs = (cutoff=cutoff, maxdim=maxdim)
 @show norm(contract(ψ.AL[1:N]..., ψ.C[N]) - contract(ψ.C[0], ψ.AR[1:N]...))
 
 stop = 100
-d = [expect(ψ, "Sz", i) for i in 1:stop]
+d_exact = [expect(ψ, "Sz", i) for i in 1:stop]
 using ITensorIMPSTools
 
+d = ITensorIMPSTools.finite_onsite(ψ, "Sz", stop)
+
 SzSz_approx = correlation_fast(ψ, "Sz", "Sz", stop) - d * d'
-SzSz_exact = correlation_slow(ψ, "Sz", "Sz", stop) - d * d'
+SzSz_exact = correlation_slow(ψ, "Sz", "Sz", stop) - d_exact * d_exact'
+
 @show SzSz_approx ≈ SzSz_exact
 
 @show sum(SzSz_approx .< 0)
@@ -81,11 +84,15 @@ vumps_kwargs = (
 stop = 100
 Op1 = "Sz"
 Op2 = "Sz"
-d1 = [expect(ψ2, Op1, i) for i in 1:stop]
-d2 = [expect(ψ2, Op2, i) for i in 1:stop]
+d1_exact = [expect(ψ2, Op1, i) for i in 1:stop]
+d2_exact = [expect(ψ2, Op2, i) for i in 1:stop]
+
+# the diagonals will be measured differently than the Celled object
+d1 = ITensorIMPSTools.finite_onsite(ψ2, Op1, stop)
+d2 = ITensorIMPSTools.finite_onsite(ψ2, Op2, stop)
 
 SzSz_approx = correlation_fast(ψ2, Op1, Op2, stop) - d1 * d2'
-SzSz_exact = correlation_slow(ψ2, Op1, Op2, stop) - d1 * d2'
+SzSz_exact = correlation_slow(ψ2, Op1, Op2, stop; tol=1e-8) - d1_exact * d2_exact'
 @show SzSz_approx ≈ SzSz_exact
 
 @show sum(SzSz_approx .< 0)
