@@ -76,14 +76,14 @@ seed!(42)
   @show norm(contract(ψ.AL[1:N]..., ψ.C[N]) - contract(ψ.C[0], ψ.AR[1:N]...))
 
   @testset "Commuting Obs" begin
-    @test round.(correlation_fast(ψ, "Sz", "Sz", 10); digits=8) ≈
-      round.(correlation_slow(ψ, "Sz", "Sz", 10); digits=8)
+    @test round.(correlation_approx(ψ, "Sz", "Sz", 10); digits=8) ≈
+      round.(correlation_exact(ψ, "Sz", "Sz", 10); digits=8)
 
-    @test round.(correlation_fast(ψ, "S+", "S-", 10); digits=8) ≈
-      round.(correlation_slow(ψ, "S+", "S-", 10); digits=8)
+    @test round.(correlation_approx(ψ, "S+", "S-", 10); digits=8) ≈
+      round.(correlation_exact(ψ, "S+", "S-", 10); digits=8)
   end
   @testset "Non-commuting Obs" begin
-    @test round.(correlation_fast(ψ, "ntot * Sz", "Nup", 10); digits=8) ≈
-      round.(correlation_slow(ψ, "ntot * Sz", "Nup", 10); digits=8)
+    @test round.(correlation_approx(ψ, "ntot * Sz", "Nup", 10); digits=8) ≈
+      round.(correlation_exact(ψ, "ntot * Sz", "Nup", 10); digits=8)
   end
 end

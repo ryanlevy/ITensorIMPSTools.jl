@@ -55,11 +55,11 @@ While the structure factor code is nearly exact, sometimes its useful to visuali
 See [the ising example](https://github.com/ryanlevy/ITensorIMPSTools.jl/blob/main/examples/ising.jl) for a comparison of the fast and exact way of calculating this correlation: 
 ```julia
 # makes a finite_mps and then puts that into correlation_matrix
-O1O2_approx = correlation_fast(ψ2, Op1, Op2, stop) 
+O1O2_approx = correlation_approx(ψ2, Op1, Op2, stop) 
 
 # takes advantage of translation symmetry
 # and assumes there's no gauge 
-O1O2_exact = correlation_slow(ψ2, Op1, Op2, stop) 
+O1O2_exact = correlation_exact(ψ2, Op1, Op2, stop) 
 ```
 
 ## Transfer Matrix Eigenvalues

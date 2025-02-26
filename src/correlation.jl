@@ -317,7 +317,7 @@ function correlation_matrix_env(psi, _Op1, _Op2, lEnv, rEnv, stop; ishermitian=n
   return C
 end
 
-function correlation_slow(
+function correlation_exact(
   ψ::InfiniteCanonicalMPS, op1::String, op2::String, stop::Int; tol=1e-14, kwargs...
 )
   T = TransferMatrix(ψ.AL)
@@ -325,7 +325,7 @@ function correlation_slow(
   return correlation_matrix_env(ψ, op1, op2, vL, vR, stop; kwargs...)
 end
 
-function correlation_fast(ψ::InfiniteCanonicalMPS, op1::String, op2::String, stop::Int)
+function correlation_approx(ψ::InfiniteCanonicalMPS, op1::String, op2::String, stop::Int)
   corr_infinite = correlation_matrix(
     finite_mps(ψ, 1:(stop + 1)), op1, op2; sites=2:(stop + 1)
   )

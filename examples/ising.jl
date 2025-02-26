@@ -63,8 +63,8 @@ using ITensorIMPSTools
 
 d = ITensorIMPSTools.finite_onsite(ψ, "Sz", stop)
 
-SzSz_approx = correlation_fast(ψ, "Sz", "Sz", stop) - d * d'
-SzSz_exact = correlation_slow(ψ, "Sz", "Sz", stop) - d_exact * d_exact'
+SzSz_approx = correlation_approx(ψ, "Sz", "Sz", stop) - d * d'
+SzSz_exact = correlation_exact(ψ, "Sz", "Sz", stop) - d_exact * d_exact'
 
 @show SzSz_approx ≈ SzSz_exact
 
