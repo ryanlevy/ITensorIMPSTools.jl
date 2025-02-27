@@ -23,7 +23,7 @@ using ITensorMPS:
   prime,
   siteind,
   scalar
-using ITensorInfiniteMPS: TransferMatrix, translator
+using LinearAlgebra: ishermitian
 
 function getLR(T; tol=1e-14, neigs=1)
   vR = getLM(T; tol, neigs)
@@ -44,6 +44,14 @@ function getLM(T; tol=1e-14, neigs=1)
   TT, vecs, vals, info = schursolve(T, vi, neigs, :LM, Arnoldi(; tol))
   if size(TT, 2) > 1 && TT[2, 1] != 0
     @warn("something wrong with LM vectors")
+  end
+
+  if info.converged == 0
+    @warn("get LM did not converge within $(info.numiter) iterations")
+  end
+
+  if !ishermitian(vecs[1]; rtol=tol)
+    @warn("getLM vector not hermitian up to tol=$tol")
   end
   return vecs[1]
 end
