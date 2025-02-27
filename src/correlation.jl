@@ -5,7 +5,7 @@ using ITensorInfiniteMPS:
   siteinds,
   finite_mps,
   translator,
-  set_ortho_lims!
+  orthogonalize
 using ITensors: random_itensor, dag
 using ITensorMPS: correlation_matrix
 using KrylovKit: eigsolve, schursolve, Arnoldi
@@ -318,20 +318,32 @@ function correlation_matrix_env(psi, _Op1, _Op2, lEnv, rEnv, stop; ishermitian=n
 end
 
 function correlation_exact(
-  ψ::InfiniteCanonicalMPS, op1::String, op2::String, stop::Int; tol=1e-14, kwargs...
+  ψ::InfiniteCanonicalMPS,
+  op1::String,
+  op2::String,
+  stop::Int;
+  tol=1e-14,
+  redo_gauge=false,
+  kwargs...,
 )
+  (redo_gauge) && (ψ = orthogonalize(ψ.AL, :; tol))
   T = TransferMatrix(ψ.AL)
   vL, vR = getLR(T; tol)
   return correlation_matrix_env(ψ, op1, op2, vL, vR, stop; kwargs...)
 end
 
-function correlation_approx(ψ::InfiniteCanonicalMPS, op1::String, op2::String, stop::Int)
+function correlation_approx(
+  ψ::InfiniteCanonicalMPS, op1::String, op2::String, stop::Int; redo_gauge=false
+)
+  (redo_gauge) && (ψ = orthogonalize(ψ.AL, :; tol=1e-14))
   corr_infinite = correlation_matrix(
     finite_mps(ψ, 1:(stop + 1)), op1, op2; sites=2:(stop + 1)
   )
   return corr_infinite
 end
 
-function finite_onsite(ψ::InfiniteCanonicalMPS, op::String, stop::Int)
+function finite_onsite(ψ::InfiniteCanonicalMPS, op::String, stop::Int; redo_gauge=false)
+  (redo_gauge) && (ψ = orthogonalize(ψ.AL, :; tol=1e-14))
+  #TODO include ortho_lims in later version
   return expect(finite_mps(ψ, 1:(stop + 1)), op; sites=2:(stop + 1))
 end

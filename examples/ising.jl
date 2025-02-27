@@ -47,6 +47,7 @@ vumps_kwargs = (
   maxiter=max_vumps_iters,
   solver_tol=solver_tol,
   multisite_update_alg=multisite_update_alg,
+  outputlevel=0,
 )
 subspace_expansion_kwargs = (cutoff=cutoff, maxdim=maxdim)
 
@@ -72,7 +73,11 @@ SzSz_exact = correlation_exact(ψ, "Sz", "Sz", stop) - d_exact * d_exact'
 @show sum(SzSz_exact .< 0)
 
 vumps_kwargs = (
-  maxiter=400, solver_tol=solver_tol, multisite_update_alg=multisite_update_alg
+  tol=1e-13,
+  maxiter=400,
+  solver_tol=solver_tol,
+  multisite_update_alg=multisite_update_alg,
+  outputlevel=0,
 )
 ψ2 = tdvp_subspace_expansion(
   H, ψ; time_step, outer_iters=1, subspace_expansion_kwargs, vumps_kwargs
@@ -88,13 +93,19 @@ d1_exact = [expect(ψ2, Op1, i) for i in 1:stop]
 d2_exact = [expect(ψ2, Op2, i) for i in 1:stop]
 
 # the diagonals will be measured differently than the Celled object
-d1 = ITensorIMPSTools.finite_onsite(ψ2, Op1, stop)
-d2 = ITensorIMPSTools.finite_onsite(ψ2, Op2, stop)
+d1 = ITensorIMPSTools.finite_onsite(ψ2, Op1, stop; redo_gauge=false)
+d2 = ITensorIMPSTools.finite_onsite(ψ2, Op2, stop; redo_gauge=false)
 
-SzSz_approx = correlation_fast(ψ2, Op1, Op2, stop) - d1 * d2'
-SzSz_exact = correlation_slow(ψ2, Op1, Op2, stop; tol=1e-8) - d1_exact * d2_exact'
+d1_g = ITensorIMPSTools.finite_onsite(ψ2, Op1, stop)
+d2_g = ITensorIMPSTools.finite_onsite(ψ2, Op2, stop)
+
+SzSz_approx = correlation_approx(ψ2, Op1, Op2, stop; redo_gauge=false) - d1 * d2'
+SzSz_approx_gauged = correlation_approx(ψ2, Op1, Op2, stop; redo_gauge=true) - d1_g * d2_g'
+SzSz_exact = correlation_exact(ψ2, Op1, Op2, stop; tol=1e-8) - d1_exact * d2_exact'
 @show SzSz_approx ≈ SzSz_exact
+@show SzSz_approx_gauged ≈ SzSz_exact
 
 @show sum(SzSz_approx .< 0)
+@show sum(SzSz_approx_gauged .< 0)
 @show sum(SzSz_exact .< 0)
 nothing
